@@ -2,8 +2,8 @@ import React, { Component } from "react";
 import Grid from '@material-ui/core/Grid';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Paper from "@material-ui/core/Paper";
-import { Container, Button, Select, MenuItem } from "@material-ui/core";
-import update from 'immutability-helper';
+import Pagination from '@material-ui/lab/Pagination';
+import { Container, Button, Select, MenuItem, Box } from "@material-ui/core";
 
 import './App.css';
 
@@ -21,6 +21,7 @@ class App extends Component {
       selected_meal: {},
       meals_list: [],
       total_price: 0,
+      pagination_count: 0,
     };
   }
 
@@ -32,6 +33,23 @@ class App extends Component {
         })
       }
     });
+  }
+
+  set_pagination = () => {
+    this.setState({
+      pagination_count: Math.ceil(this.state.meals.length/3)
+    })
+  }
+
+  change_page = (event, page) => {
+    this.setState({
+      showed_meals: []
+    })
+    const up_slice = page * this.state.pagination_count
+    const down_slice = (page - 1) * this.state.pagination_count
+    this.setState({
+      showed_meals: this.state.meals.slice(down_slice, up_slice)
+    })
   }
 
   change_person = async event => {
@@ -52,13 +70,7 @@ class App extends Component {
     this.setState({
       showed_meals: []
     })
-    if (this.state.selected_tag === "None") {
-      this.setState({
-        showed_meals: this.state.meals
-      })
-    }
-    else {
-      this.state.meals.forEach(meal => {
+    this.state.meals.forEach(meal => {
         meal.labels.forEach(label => {
           if (label === this.state.selected_tag.toLowerCase()) {
             this.setState(state => {
@@ -67,8 +79,8 @@ class App extends Component {
             })
           }
         })
-      })
-    }
+    })
+    this.set_pagination()
   }
 
   set_meal = async (meal) => {
@@ -94,7 +106,12 @@ class App extends Component {
 
     this.state.meals_list.forEach(item => {
       if (this.state.selected_person === item.person) {
-        total_price = total_price + item.meal.price + item.drink.price
+        if (item.drink === "None") {
+          total_price = total_price + item.meal.price
+        }
+        else {
+          total_price = total_price + item.meal.price + item.drink.price
+        }
       }
     })
     
@@ -127,9 +144,10 @@ class App extends Component {
           data: data.data,
           labels: data.data.labels,
           meals: data.data.meals,
-          showed_meals: data.data.meals
+          showed_meals: data.data.meals.slice(0, 3)
         })
       })
+    this.set_pagination()
   }
 
   render() {
@@ -159,7 +177,7 @@ class App extends Component {
                     <Container>
                       {this.state.selected_person === meal.person ? 
                         <p>{meal.meal.title}: {meal.meal.price}$,
-                          {meal.drink.title}: {meal.drink.price}$
+                            {meal.drink.title || "No drink"}: {meal.drink.price || 0}$
                           <Button key={index} onClick={() => this.deselect(index)} variant="outlined">Deselect</Button></p>: <p></p>
                       }
                     </Container>
@@ -195,6 +213,18 @@ class App extends Component {
                   </Paper>
                 </Grid>
               ))}
+            </Grid>
+            <Grid container>
+              <Grid item xs={8}>
+              <Box 
+                  display="flex" 
+                  alignItems="center"
+                  justifyContent="center"
+                  >
+                    <Pagination id="pagination" count={this.state.pagination_count} onChange={(event, page) => this.change_page(event, page)} style={{margin:5}} variant="outlined" shape="rounded" />
+                </Box>
+              </Grid>
+              <Grid item xs={4}></Grid>
             </Grid>
           </Container>
         </React.Fragment>
