@@ -35,9 +35,9 @@ class App extends Component {
     });
   }
 
-  set_pagination = () => {
+  set_pagination = (array) => {
     this.setState({
-      pagination_count: Math.ceil(this.state.meals.length/3)
+      pagination_count: Math.ceil(array.length/3)
     })
   }
 
@@ -80,7 +80,7 @@ class App extends Component {
           }
         })
     })
-    this.set_pagination()
+    this.set_pagination(this.state.showed_meals)
   }
 
   set_meal = async (meal) => {
@@ -147,7 +147,7 @@ class App extends Component {
           showed_meals: data.data.meals.slice(0, 3)
         })
       })
-    this.set_pagination()
+    this.set_pagination(this.state.meals)
   }
 
   render() {
@@ -182,7 +182,7 @@ class App extends Component {
                       }
                     </Container>
                   ))}
-                  <p>Total price: {this.state.total_price}</p>
+                  <p>Total price: {this.state.total_price}$</p>
                 </Paper>
               </Grid>
               {this.state.showed_meals.map(meal => (
