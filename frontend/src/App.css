@@ -24,3 +24,13 @@
   min-width: 200px;
   min-height: 200px;
 }
+
+button{
+  background-color:whitesmoke;
+}
+
+button:focus{background-color:darkgrey;}
+
+a:active {
+  color: darkgrey;
+}
