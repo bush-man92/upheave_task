@@ -45,6 +45,30 @@ class App extends Component {
     await this.setState({
       selected_tag: tag
     })
+    this.set_showed_meals()
+  }
+
+  set_showed_meals = () => {
+    this.setState({
+      showed_meals: []
+    })
+    if (this.state.selected_tag === "None") {
+      this.setState({
+        showed_meals: this.state.meals
+      })
+    }
+    else {
+      this.state.meals.forEach(meal => {
+        meal.labels.forEach(label => {
+          if (label === this.state.selected_tag.toLowerCase()) {
+            this.setState(state => {
+              const showed_meals = state.showed_meals.concat(meal)
+              return {showed_meals}
+            })
+          }
+        })
+      })
+    }
   }
 
   set_meal = async (meal) => {
@@ -102,7 +126,8 @@ class App extends Component {
         this.setState({
           data: data.data,
           labels: data.data.labels,
-          meals: data.data.meals
+          meals: data.data.meals,
+          showed_meals: data.data.meals
         })
       })
   }
@@ -116,7 +141,7 @@ class App extends Component {
               <Grid item xs={8}>
                 <Paper class="paper">
                   {this.state.labels.map(value => (
-                    <Button style={{margin:10}} variant="outlined" onClick={() => this.deselect(value.label)} key={value.id}>{value.label}</Button>
+                    <Button style={{margin:10}} variant="outlined" onClick={() => this.change_tag(value.label)} key={value.id}>{value.label}</Button>
                   ))}
                 </Paper>
               </Grid>
@@ -142,7 +167,7 @@ class App extends Component {
                   <p>Total price: {this.state.total_price}</p>
                 </Paper>
               </Grid>
-              {this.state.meals.map(meal => (
+              {this.state.showed_meals.map(meal => (
                 <Grid key={meal.id} item xs={8}>
                   <Paper class="paper">
                     <Grid container>
